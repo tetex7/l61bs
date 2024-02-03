@@ -123,8 +123,10 @@ typedef ERROR_PAK* ER_PAC_PTR;
 #include <boost/process.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
 #include <functional>
 #include <filesystem>
+#include <map>
 
 namespace fs = boost::filesystem;
 

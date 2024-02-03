@@ -101,11 +101,30 @@ function libfs.raw_filename(path)
     
 end
 
+---@param path string paht
+function libfs.delet(path)
+    
+end
+
+---@param path string paht
+function libfs.mkdir(path)
+    
+end
+
+---comment
+---@param code integer
+function libl61.exit(code)
+    
+end
+
 ---preload var var of libl61
 
 sys = {}
 sys.argv = {}
 sys.argc = 0
+
+--@type osdateparam
+--sd = {}
 
 l61 = libl61
 fs = libfs

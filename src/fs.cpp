@@ -59,8 +59,35 @@ C_CALL int fs_rfilename(lua_State* L)
         return 1;
     }
     std::string raw_dir = lua_tostring(L, -1);
-    lua_pushstring(L, fs::basename(raw_dir).c_str());
+    std::string fext = fs::extension(raw_dir);
+    std::string out = fs::basename(raw_dir) + fext;
+    lua_pushstring(L, out.c_str());
     return 1;
+}
+
+C_CALL int fs_mkdir(lua_State* L)
+{
+    if (!lua_isstring(L, -1))
+    {
+        std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
+        return 0;
+    }
+    std::string raw_dir = lua_tostring(L, -1);
+    fs::create_directory(raw_dir);
+    return 0;
+}
+
+C_CALL int fs_delet(lua_State* L)
+{
+    if (!lua_isstring(L, -1))
+    {
+        std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
+        return 0;
+    }
+    std::string raw_dir = lua_tostring(L, -1);
+    fs::remove_all(raw_dir);
+    //lua_pushstring(L, out.c_str());
+    return 0;
 }
 
 C_CALL int fs_is_dir(lua_State* L)

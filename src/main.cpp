@@ -20,9 +20,24 @@ C_CALL int lexit_setcode(lua_State *L)
     return 0;
 }
 
+C_CALL int lexit(lua_State *L)
+{
+    if (lua_isinteger(L, -1))
+    {
+        int exitcode = lua_tointeger(L, -1);
+        exit(exitcode);
+    }
+    else
+    {
+        exit(0);
+    }
+    return 0;
+}
+
 C_CALL void linit_env(lua_State *L)
 {
     luaL_openlibs(L);
+    lua_def_string(L61stat.L, "L61_VID", "2.0.0");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
@@ -79,10 +94,15 @@ int main(int argc, const char** argv)
 {
     //std::unique_ptr<lua_State, getTypeOf(&lua_close)> lua(luaL_newstate(), lua_close);
     atexit(bl61_exit);
+    const char* exe_path_str = argv[0];
+    
+    //L61stat.bin_path = install_path;
+    //std::cout << L61stat.bin_path << '\n';
 
     std::string start_file = "main.lua";
     po::options_description desc("the λ61 build system cls options");
     desc.add_options()
+        ("help-fs", "")
         ("help,h", "produce help message")
         ("init", "init's the cwd")
         ("dir,d", po::value<std::string>(), "cha the dir")
@@ -104,11 +124,15 @@ int main(int argc, const char** argv)
         exit(1);
     }
     
+    if (vm.count("help")) {
+        std::cout << "TODO";
+        return 0;
+    }
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
         std::cout << REP_BUG_TEXT << "\n";
-        return 1;
+        return 0;
     }
 
     if (vm.count("init")) 
@@ -116,10 +140,18 @@ int main(int argc, const char** argv)
         //fs::copy_directory(L61stat.bin_path + "/prefrom_l61", L61stat.work_path);
         //fs::create_directory(L61stat.work_path, L61stat.bin_path + "/prefrom_l61");
         //exec("cp -ra " + L61stat.bin_path + "/prefrom_l61 " + L61stat.work_path);
-        if (fs::exists(L61stat.make_file_path))
+        //if (fs::exists(L61stat.make_file_path))
+        //{
+        try
         {
             std::filesystem::copy(L61stat.bin_path + "/prefrom_l61", L61stat.work_path, std::filesystem::copy_options::recursive);
         }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            return 55;
+        }
+        //}
         //std::cout << "cp -ra " + L61stat.bin_path + "/prefrom_l61 " + L61stat.work_path;
         return 0;
     }
@@ -143,6 +175,9 @@ int main(int argc, const char** argv)
         lua_arg = splitString(vm["argv"].as<std::string>());
 
     }
+
+    std::string title = "λ61 on " + L61stat.make_file_path;
+    std::cout << "\033]0;" << title << "\007";
 
     /*if (vm.count("compression")) {
         std::cout << "Compression level was set to " << vm["compression"].as<int>() << ".\n";
@@ -199,6 +234,42 @@ int main(int argc, const char** argv)
     lua_setglobal(L61stat.L, "argv");
     lua_def_int(L61stat.L, "argc", arg_vet.size());*/
     
+
+    lua_getglobal(L61stat.L, "l61");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &lexit);
+        lua_setfield(L61stat.L, -2, "exit");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+    lua_getglobal(L61stat.L, "fs");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &fs_mkdir);
+        lua_setfield(L61stat.L, -2, "mkdir");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+    lua_getglobal(L61stat.L, "fs");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &fs_delet);
+        lua_setfield(L61stat.L, -2, "delet");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
 
     lua_getglobal(L61stat.L, "fs");
     if(lua_istable(L61stat.L, -1))
@@ -278,9 +349,8 @@ int main(int argc, const char** argv)
 ERROR:
     if (lua_isstring(L61stat.L, -1))
     {
-        std::cerr << "Error loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
+        std::cerr << "\nError loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
         return 55;
     }
-    std::cout << "l61 exit code: " << exit_code << '\n';
     return exit_code;
 }
