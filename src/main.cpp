@@ -40,16 +40,20 @@ C_CALL void linit_env(lua_State *L)
     lua_def_string(L61stat.L, "L61_VID", "2.0.0");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
+    lua_def_nil(L, "os");
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
     lua_mount_cfun(L, "lib_mount", &load);
+    lua_def_nil(L, "require");
     lua_mount_cfun(L, "require", &load);
+    //luaL_dostring(L, "function require(name) return libmount(name) end");
     lua_mount_cfun(L, "exec", &lua_exec); 
     lua_mount_cfun(L, "getdirR", &getdirR);
-    lua_mount_cfun(L, "lsf", &lua_lsf);
     lua_def_string(L, "PWD", L61stat.work_path.c_str());
     lua_libmount(L, "libl61", "l61");
     lua_libmount(L, "libfs", "fs");
+    lua_def_table(L, "sys", "os");
+
 }
 
 //std::unique_ptr<BYTE, getTypeOf(&free)> buff = std::unique_ptr<BYTE, getTypeOf(&free)>(malloc(sizeof(BYTE) * 850), &free);
@@ -235,7 +239,45 @@ int main(int argc, const char** argv)
     lua_def_int(L61stat.L, "argc", arg_vet.size());*/
     
 
+    lua_getglobal(L61stat.L, "sys");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_getglobal(L61stat.L, "fs");
+        lua_setfield(L61stat.L, -2, "fs");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+    lua_getglobal(L61stat.L, "sys");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_getglobal(L61stat.L, "l61");
+        lua_setfield(L61stat.L, -2, "l61");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
     lua_getglobal(L61stat.L, "l61");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &lexit);
+        lua_setfield(L61stat.L, -2, "exit");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+
+
+    lua_getglobal(L61stat.L, "sys");
     if(lua_istable(L61stat.L, -1))
     {
         lua_pushcfunction(L61stat.L, &lexit);
@@ -300,6 +342,30 @@ int main(int argc, const char** argv)
     {
         lua_pushcfunction(L61stat.L, &fs_getEx);
         lua_setfield(L61stat.L, -2, "getEx");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+    lua_getglobal(L61stat.L, "fs");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &fs_copy);
+        lua_setfield(L61stat.L, -2, "copy");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
+    lua_getglobal(L61stat.L, "fs");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, &fs_copyr);
+        lua_setfield(L61stat.L, -2, "copyr");
         
     }
     else

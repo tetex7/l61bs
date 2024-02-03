@@ -179,6 +179,11 @@ void lua_mount_cfun(lua_State *L, const char* fname, lua_CFunction fun_ptr)
     lua_setglobal(L, fname);
 }
 
+void lua_def_table(lua_State *L, const char* table, const char* as)
+{
+    lua_getglobal(L, table);
+    lua_setglobal(L, as);
+}
 
 void lua_def_int(lua_State *L, const char* dname, lua_Integer val)
 {

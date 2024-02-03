@@ -12,7 +12,7 @@ function main(argc, argv)
     if argc == 2 then
         if argv[2] == "clean" then
             fs.delet(PWD.."/bin")
-            l61.exit(0)
+            sys.exit(0)
         end
     end
 

@@ -92,6 +92,21 @@ function libfs.getEx(path)
 end
 
 
+
+---comment
+---@param from string
+---@param to string
+function libfs.copy(from, to)
+    
+end
+
+---comment
+---@param from string
+---@param to string
+function libfs.copyr(from, to)
+    
+end
+
 ---
 ---
 ---
@@ -113,7 +128,13 @@ end
 
 ---comment
 ---@param code integer
-function libl61.exit(code)
+function l61.exit(code)
+    
+end
+
+---comment
+---@param code integer
+function sys.exit(code)
     
 end
 
@@ -122,11 +143,14 @@ end
 sys = {}
 sys.argv = {}
 sys.argc = 0
+sys.l61 = l61
+sys.fs = fs
 
 --@type osdateparam
 --sd = {}
 
 l61 = libl61
 fs = libfs
+os = sys
 ---the PWD as of $PWD in bash
 PWD = ""
