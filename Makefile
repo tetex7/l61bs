@@ -186,7 +186,7 @@ INCS := -I./include
 PLAS := -J./include
 
 # Optimization compiler flags
-GCCFLAG = -funsigned-char -Wno-sizeof-pointer-div -fpermissive
+GCCFLAG = -Wno-sizeof-pointer-div -fpermissive
 DFLAG = -D_L61=152
 BFLAG = 
 
