@@ -32,8 +32,9 @@ struct l61_stat
     std::string work_path;
     std::string make_file_path;
     std::string bin_path;
+    std::string user_name;
     l61_stat();
-    l61_stat(lua_State* L, const std::string work_path, const std::string make_file_path, std::string bin_path);
+    l61_stat(lua_State* L, const std::string work_path, const std::string make_file_path, std::string bin_path, std::string user);
 };
 
 

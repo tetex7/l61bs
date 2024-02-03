@@ -1,6 +1,6 @@
- # Maintainer: Morgan <morganamilo@archlinux.org>
+ # Maintainer: tete <tetex7@outlook.com>
 pkgname=l61
-pkgver=2.0.0
+pkgver=2.1.0
 pkgrel=1
 pkgdesc='the λ61 build system'
 url='https://github.com/tetex7/l61bs'

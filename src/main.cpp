@@ -7,7 +7,7 @@
 
 namespace po = boost::program_options;
 //#include <dpp/dispatcher.h>
-l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/make.lua", "/opt/l61");
+l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/make.lua", "/opt/l61", getenv("USER"));
 
 int exit_code = 0;
 C_CALL int lexit_setcode(lua_State *L)
@@ -37,7 +37,7 @@ C_CALL int lexit(lua_State *L)
 C_CALL void linit_env(lua_State *L)
 {
     luaL_openlibs(L);
-    lua_def_string(L61stat.L, "L61_VID", "2.0.0");
+    lua_def_string(L61stat.L, "L61_VID", "2.1.0");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
     lua_def_nil(L, "os");
@@ -99,6 +99,7 @@ int main(int argc, const char** argv)
     //std::unique_ptr<lua_State, getTypeOf(&lua_close)> lua(luaL_newstate(), lua_close);
     atexit(bl61_exit);
     const char* exe_path_str = argv[0];
+    //std::cout << "user: " << L61stat.user_name << "\n";
     
     //L61stat.bin_path = install_path;
     //std::cout << L61stat.bin_path << '\n';

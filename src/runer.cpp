@@ -85,8 +85,12 @@ C_CALL int load(lua_State *L)
     std::string locl_path = L61stat.work_path + "/scripts/" + lib_name + ".lua";
 
     std::string binb_path = L61stat.bin_path + "/lib/" + lib_name + ".lua";
+    std::string locl_lib_path = "/home/" + L61stat.user_name + "/l61_lib/" + lib_name + ".lua";
 
     if (luaL_dofile(L, locl_path.c_str()) == LUA_OK) {
+        goto Wret;
+    }
+    else if (luaL_dofile(L, locl_lib_path.c_str()) == LUA_OK) {
         goto Wret;
     }
     else if (luaL_dofile(L, binb_path.c_str()) == LUA_OK) {
@@ -95,7 +99,7 @@ C_CALL int load(lua_State *L)
     else
     {
         std::cerr << "[l61/C] Error loading Lua script: " << lua_tostring(L, -1) << '\n';
-        return 1;
+        return 0;
     }
 
 
