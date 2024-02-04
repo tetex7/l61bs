@@ -177,6 +177,17 @@ void lua_libmount(lua_State *L, const char* libname, const char* as)
 }
 
 
+void luaT_mount_cfun(lua_State *L,const char* tabl, const char* fname, lua_CFunction fun_ptr)
+{
+    lua_getglobal(L61stat.L, tabl);
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushcfunction(L61stat.L, fun_ptr);
+        lua_setfield(L61stat.L, -2, fname);
+        
+    }
+}
+
 void lua_mount_cfun(lua_State *L, const char* fname, lua_CFunction fun_ptr)
 {
     lua_pushcfunction(L, fun_ptr);

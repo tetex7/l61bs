@@ -146,6 +146,8 @@ sys.argc = 0
 sys.l61 = l61
 sys.fs = fs
 
+sys.user = ""
+
 --@type osdateparam
 --sd = {}
 

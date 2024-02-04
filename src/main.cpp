@@ -103,7 +103,6 @@ int main(int argc, const char** argv)
     
     //L61stat.bin_path = install_path;
     //std::cout << L61stat.bin_path << '\n';
-
     std::string start_file = "main.lua";
     po::options_description desc("the λ61 build system cls options");
     desc.add_options()
@@ -113,6 +112,7 @@ int main(int argc, const char** argv)
         ("dir,d", po::value<std::string>(), "cha the dir")
         ("mainl,l", po::value<std::string>(), "the start lua file")
         ("argv,a", po::value<std::string>(), "biled lua args (RIP)")
+        ("can-root,r", po::value<FLAG>(), "")
     ;
     
 
@@ -212,13 +212,7 @@ int main(int argc, const char** argv)
         arg_vet.push_back(arg);
     }
 
-
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_exists);
-        lua_setfield(L61stat.L, -2, "exists");
-        
-    }
+    
 
     lua_getglobal(L61stat.L, "sys");
     if(lua_istable(L61stat.L, -1))
@@ -251,6 +245,20 @@ int main(int argc, const char** argv)
     {
         goto ERROR;
     }
+
+
+    lua_getglobal(L61stat.L, "sys");
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_pushstring(L61stat.L, L61stat.user_name.c_str());
+        lua_setfield(L61stat.L, -2, "user");
+        
+    }
+    else
+    {
+        goto ERROR;
+    }
+
 
     lua_getglobal(L61stat.L, "sys");
     if(lua_istable(L61stat.L, -1))
@@ -290,101 +298,15 @@ int main(int argc, const char** argv)
         goto ERROR;
     }
 
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_mkdir);
-        lua_setfield(L61stat.L, -2, "mkdir");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
+    luaT_mount_cfun(L61stat.L, "fs", "mkdir", &fs_mkdir);
+    luaT_mount_cfun(L61stat.L, "fs", "delet", &fs_delet);
+    luaT_mount_cfun(L61stat.L, "fs", "exists", &fs_exists);
+    luaT_mount_cfun(L61stat.L, "fs", "is_dir", &fs_is_dir);
+    luaT_mount_cfun(L61stat.L, "fs", "getEx", &fs_getEx);
+    luaT_mount_cfun(L61stat.L, "fs", "copy", &fs_copy);
+    luaT_mount_cfun(L61stat.L, "fs", "copyr", &fs_copyr);
+    luaT_mount_cfun(L61stat.L, "fs", "raw_filename", &fs_rfilename);
 
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_delet);
-        lua_setfield(L61stat.L, -2, "delet");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_exists);
-        lua_setfield(L61stat.L, -2, "exists");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-    
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_is_dir);
-        lua_setfield(L61stat.L, -2, "is_dir");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_getEx);
-        lua_setfield(L61stat.L, -2, "getEx");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_copy);
-        lua_setfield(L61stat.L, -2, "copy");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_copyr);
-        lua_setfield(L61stat.L, -2, "copyr");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
-
-    lua_getglobal(L61stat.L, "fs");
-    if(lua_istable(L61stat.L, -1))
-    {
-        lua_pushcfunction(L61stat.L, &fs_rfilename);
-        lua_setfield(L61stat.L, -2, "raw_filename");
-        
-    }
-    else
-    {
-        goto ERROR;
-    }
 
     if (luaL_dofile(L61stat.L, L61stat.make_file_path.c_str()) != LUA_OK) {
         std::cerr << "Error loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n";
@@ -417,7 +339,9 @@ ERROR:
     if (lua_isstring(L61stat.L, -1))
     {
         std::cerr << "\nError loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
+        std::cout << "\a\a";
         return 55;
     }
+    std::cout << '\a';
     return exit_code;
 }

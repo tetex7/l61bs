@@ -27,8 +27,8 @@ function main(argc, argv)
     gcc.form()
     for i = 1, l61.taplelen(src_files) do
         if fs.getEx(src_files[i]) == ".cpp" then--string.find(, ".cpp") then
-            print(gcc.CXX.." "..INC.." ".." -c "..src_files[i].." -o ./bin/"..fs.raw_filename(src_files[i])..".cpp.o")
-            exec(gcc.CXX.." "..INC.." ".." -c  "..src_files[i].." -o ./bin/"..fs.raw_filename(src_files[i])..".cpp.o")
+            print(gcc.CXX.." "..INC.." ".." -c "..src_files[i].." -o ./bin/"..fs.raw_filename(src_files[i])..".o")
+            exec(gcc.CXX.." "..INC.." ".." -c  "..src_files[i].." -o ./bin/"..fs.raw_filename(src_files[i])..".o")
         end
     end
     local bin_files = fs.list_files(PWD.."/bin")

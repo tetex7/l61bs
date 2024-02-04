@@ -2,7 +2,7 @@ NAME = l61
 ELF = $(NAME)
 DEBUG = 1
 SYS_LIBS = 
-LIBS = -llua $(BOOST_LIBS) $(ABSL_LIBS)
+LIBS = -llua $(BOOST_LIBS)
 #-lluacpp
 LIB_INC = 
 #BOND = 115200
