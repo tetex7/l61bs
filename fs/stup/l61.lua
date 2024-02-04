@@ -147,6 +147,7 @@ sys.l61 = l61
 sys.fs = fs
 
 sys.user = ""
+DEBUG = false
 
 --@type osdateparam
 --sd = {}

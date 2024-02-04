@@ -37,7 +37,8 @@ C_CALL int lexit(lua_State *L)
 C_CALL void linit_env(lua_State *L)
 {
     luaL_openlibs(L);
-    lua_def_string(L61stat.L, "L61_VID", "2.1.1");
+    lua_def_bool(L, "DEBUG", 0);
+    lua_def_string(L61stat.L, "L61_VID", "2.1.3");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
     lua_def_nil(L, "os");
