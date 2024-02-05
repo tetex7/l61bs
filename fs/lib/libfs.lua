@@ -28,7 +28,9 @@ function libfs.lfl_l(dir)
     return df
 end
 
-
+---comment
+---@param path string
+---@return string
 function libfs.lfs(path)
     local f = fs.list_files(path)
     local files = ""

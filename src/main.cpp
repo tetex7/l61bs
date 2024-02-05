@@ -38,7 +38,7 @@ C_CALL void linit_env(lua_State *L)
 {
     luaL_openlibs(L);
     lua_def_bool(L, "DEBUG", 0);
-    lua_def_string(L61stat.L, "L61_VID", "2.1.3");
+    lua_def_string(L61stat.L, "L61_VID", "2.2.0_dev");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
     lua_def_nil(L, "os");
@@ -113,7 +113,8 @@ int main(int argc, const char** argv)
         ("dir,d", po::value<std::string>(), "cha the dir")
         ("mainl,l", po::value<std::string>(), "the start lua file")
         ("argv,a", po::value<std::string>(), "biled lua args (RIP)")
-        ("can-root,r", po::value<FLAG>(), "")
+        ("log-mode", po::value<FLAG>(), "biled lua args (RIP)")
+        ("can-root", po::value<FLAG>(), "")
     ;
     
 
@@ -129,16 +130,25 @@ int main(int argc, const char** argv)
         std::cerr << e.what() << '\n';
         exit(1);
     }
-    
-    if (vm.count("help")) {
-        std::cout << "TODO";
-        return 0;
+
+    FLAG logm = 0;
+
+    if (vm.count("log-mode")) {
+        logm = vm["log-mode"].as<FLAG>();
     }
+
+    std::cout << exec("bash " + L61stat.bin_path + "/KROM.sh " + STRex(((int)!logm)));
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
         std::cout << REP_BUG_TEXT << "\n";
         return 0;
+    }
+
+    if ((L61stat.user_name == "root") && !vm.count("can-root"))
+    {
+        std::cout << NO_ROOT_MEG << '\n';
+        exit(45);
     }
 
     if (vm.count("init")) 

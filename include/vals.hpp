@@ -47,6 +47,7 @@ ret_bi run(std::function<ret_bi()> fun)
 lua_type_e lua_gettype(lua_State *L, int idx);
 extern  l61_stat L61stat;
 #define REP_BUG_TEXT "For Docs and bug reporting\nplease see: <https://github.com/tetex7/l61bs>."
+#define NO_ROOT_MEG "PLEASE DO NOT RUN AS ROOT\nyou have better things to do in your life then destroy your system"
 #define LCTEXT "[λ61/C++]"
 #define LUATXT "[λ61/LUA]"
 #endif

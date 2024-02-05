@@ -1,6 +1,6 @@
  # Maintainer: tete <tetex7@outlook.com>
 pkgname=l61
-pkgver=2.1.3
+pkgver=2.2.0_dev
 pkgrel=1
 pkgdesc='the λ61 build system'
 url='https://github.com/tetex7/l61bs'
@@ -42,5 +42,6 @@ package() {
     
     install -Dm755 ./bin/l61 "${pkgdir}/opt/l61/bin/l61"
     install -Dm755 ./bin/mk61 "${pkgdir}/opt/l61/bin/mk61"
+    install -Dm755 ./KROM.sh "${pkgdir}/opt/l61/KROM.sh"
 }
 
