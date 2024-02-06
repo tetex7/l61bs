@@ -8,6 +8,9 @@
 namespace po = boost::program_options;
 //#include <dpp/dispatcher.h>
 l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/make.lua", "/opt/l61", getenv("USER"));
+FLAG canTRUST = 0;
+std::vector<std::string> spaths = {(L61stat.work_path + "/scripts"), ("/home/" + L61stat.user_name + "/l61_lib"), (L61stat.bin_path + "/lib")};
+const size_t sp_size = spaths.size();
 
 int exit_code = 0;
 C_CALL int lexit_setcode(lua_State *L)
@@ -16,6 +19,33 @@ C_CALL int lexit_setcode(lua_State *L)
     {
         exit_code = lua_tointeger(L, -1);
         return 0;
+    }
+    return 0;
+}
+
+C_CALL int getLibPathStack(lua_State *L)
+{
+    createIntStrTable(L, spaths);
+    return 1;
+}
+
+
+C_CALL int pushLibPath(lua_State *L)
+{
+    if (lua_isstring(L, -1))
+    {
+        std::string path = lua_tostring(L, -1);
+        spaths.push_back(path);
+        return 0;
+    }
+    return 0;
+}
+
+C_CALL int popLibPath(lua_State *L)
+{
+    if (spaths.size() != sp_size)
+    {
+        spaths.pop_back();
     }
     return 0;
 }
@@ -45,6 +75,9 @@ C_CALL void linit_env(lua_State *L)
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
     lua_mount_cfun(L, "lib_mount", &load);
+    lua_mount_cfun(L, "pushLibPath", &pushLibPath);
+    lua_mount_cfun(L, "getLibPathStack", &getLibPathStack);
+    lua_mount_cfun(L, "popLibPath", &popLibPath);
     lua_def_nil(L, "require");
     lua_mount_cfun(L, "require", &load);
     //luaL_dostring(L, "function require(name) return libmount(name) end");
@@ -95,6 +128,8 @@ lua_type_e lua_gettype(lua_State *L, int idx)
 }
 using boost::program_options::unknown_option;
 
+typedef const char** cstr_arr;
+
 int main(int argc, const char** argv)
 {
     //std::unique_ptr<lua_State, getTypeOf(&lua_close)> lua(luaL_newstate(), lua_close);
@@ -113,7 +148,7 @@ int main(int argc, const char** argv)
         ("dir,d", po::value<std::string>(), "cha the dir")
         ("mainl,l", po::value<std::string>(), "the start lua file")
         ("argv,a", po::value<std::string>(), "biled lua args (RIP)")
-        ("log-mode", po::value<FLAG>(), "biled lua args (RIP)")
+        ("log-mode", po::value<FLAG>(), "")
         ("can-root", po::value<FLAG>(), "")
     ;
     

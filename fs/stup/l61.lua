@@ -7,6 +7,19 @@ function libmount(name)
     return {}
 end
 
+---comment
+---@param path string
+function pushLibPath(path)
+    
+end
+
+function pushLibPath()
+    
+end
+
+---@return table
+function getLibPathStack()
+end
 ---
 ---Returns a string output for cmd.
 ---

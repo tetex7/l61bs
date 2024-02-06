@@ -127,6 +127,7 @@ typedef ERROR_PAK* ER_PAC_PTR;
 #include <functional>
 #include <filesystem>
 #include <map>
+#include <json.hpp>
 
 namespace fs = boost::filesystem;
 

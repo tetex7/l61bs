@@ -82,26 +82,19 @@ C_CALL int load(lua_State *L)
 
     std::string lib_name = lua_tostring(L, -1);
 
-    std::string locl_path = L61stat.work_path + "/scripts/" + lib_name + ".lua";
-
-    std::string binb_path = L61stat.bin_path + "/lib/" + lib_name + ".lua";
-    std::string locl_lib_path = "/home/" + L61stat.user_name + "/l61_lib/" + lib_name + ".lua";
-
-    if (luaL_dofile(L, locl_path.c_str()) == LUA_OK) {
-        goto Wret;
-    }
-    else if (luaL_dofile(L, locl_lib_path.c_str()) == LUA_OK) {
-        goto Wret;
-    }
-    else if (luaL_dofile(L, binb_path.c_str()) == LUA_OK) {
-        goto Wret;
-    }
-    else
+    for(const std::string& path_to : spaths)
     {
-        std::cerr << "[l61/C] Error loading Lua script: " << lua_tostring(L, -1) << '\n';
-        return 0;
+            
+        std::string path = path_to + "/" + lib_name + ".lua";
+        if (luaL_dofile(L, path.c_str()) == LUA_OK) {
+            goto Wret;
+        }
+        else
+        {
+            std::cerr << "[l61/C] Error loading Lua script: " << lua_tostring(L, -1) << '\n';
+            return 0;
+        }
     }
-
 
 Wret:
     // Get the global variable "myTable"
@@ -157,7 +150,7 @@ C_CALL int getdirR(lua_State *L)
 }
 
 
-void lua_libmount(lua_State *L, const char* libname, const char* as)
+void lua_libmount(lua_State *L, const char* libname, const char* as, FLAG has_tale)
 {
     lua_getglobal(L61stat.L, "libmount"); // get the function on the stack
     if (!lua_isfunction(L61stat.L, -1)) { 
@@ -168,6 +161,10 @@ void lua_libmount(lua_State *L, const char* libname, const char* as)
     if (!lua_istable(L61stat.L, -1))
     {
         std::cout << "[C] Error: didn't find lib tabl" << libname << " \n";
+        return;
+    }
+    else if(has_tale)
+    {
         return;
     }
     else
