@@ -1,6 +1,6 @@
  # Maintainer: tete <tetex7@outlook.com>
 pkgname=l61
-pkgver=2.2.0_dev
+pkgver=2.2.0_dev_pr1
 pkgrel=1
 pkgdesc='the λ61 build system'
 url='https://github.com/tetex7/l61bs'

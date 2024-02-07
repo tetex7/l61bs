@@ -73,7 +73,7 @@ void createIntStrTable(lua_State *L,const std::vector<std::string> &values) {
 //extern "C"
 C_CALL int load(lua_State *L)
 {
-    FLAG it = 1;
+    FLAG it = 0;
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] input is not string\n";
@@ -91,11 +91,18 @@ C_CALL int load(lua_State *L)
         }
         else
         {
+            std::string sd = lua_tostring(L, -1);
+            if (sd.find("No such file or directory",0))
+            {
+                continue;
+            }
             std::cerr << "[l61/C] Error loading Lua script: " << lua_tostring(L, -1) << '\n';
+            exit(666);
             return 0;
         }
     }
-
+    std::cerr << "[l61/C] Error loading Lua lib: " << lib_name << " doen't exist\n";
+    return 0;
 Wret:
     // Get the global variable "myTable"
     if (lua_getglobal(L, lib_name.c_str()))
@@ -189,6 +196,17 @@ void lua_mount_cfun(lua_State *L, const char* fname, lua_CFunction fun_ptr)
 {
     lua_pushcfunction(L, fun_ptr);
     lua_setglobal(L, fname);
+}
+
+void luaT_def_table(lua_State *L, const char* table, const char* mtable)
+{
+    lua_getglobal(L61stat.L, table);
+    if(lua_istable(L61stat.L, -1))
+    {
+        lua_getglobal(L, mtable);
+        lua_setfield(L61stat.L, -2, mtable);
+        
+    }
 }
 
 void lua_def_table(lua_State *L, const char* table, const char* as)

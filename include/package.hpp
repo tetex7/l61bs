@@ -19,20 +19,21 @@ struct pak_time_t
 
 
 
-struct pak_module_t
+/*struct pak_module_t
 {
     std::string name;
     std::vector<std::string> depends;
     FLAG load_deps;
+    FLAG main_mod;
     pak_module_t(const pak_module_t& mod);
     __inline pak_module_t operator=(pak_module_t& val)
     {
         return pak_module_t(val);
     }
-    pak_module_t(const std::string name, const std::vector<std::string>& depends, const FLAG load_deps);
+    pak_module_t(const std::string name, const std::vector<std::string>& depends, FLAG main_mod, const FLAG load_deps);
     
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(pak_module_t, name, depends, load_deps);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(pak_module_t, name, depends, main_mod, load_deps);*/
 
 struct pak_metadata_t
 {
@@ -51,7 +52,7 @@ struct pak_metadata_t
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(pak_metadata_t, dev_name, vid, com_dev, description);
 
 // partial specialization (full specialization works too)
-namespace nlohmann {
+/*namespace nlohmann {
     template <>
     struct adl_serializer<std::vector<pak_module_t>> {
         static void to_json(json& j, const std::vector<pak_module_t>& vet) {
@@ -61,21 +62,22 @@ namespace nlohmann {
         static void from_json(const json& j, std::vector<pak_module_t>& vet) {
             for(const auto& data : j)
             {
-                pak_module_t __d = pak_module_t("", std::vector<std::string>(), 0);
+                pak_module_t __d = pak_module_t("", std::vector<std::string>(), 0, 0);
                 ::from_json(data, __d);
                 vet.push_back(__d);
             }
         }
     };
-}
+}*/
 
 struct pak_t
 {
     std::string pkgname;
-    std::vector<pak_module_t> modules;
-    pak_metadata_t metadate;
+    //std::vector<pak_module_t> modules;
+    pak_metadata_t metadata;
+    std::vector<std::string> depends;
     std::string runtime_data; // ask Tete
-    pak_t(std::string pkgname, const std::vector<pak_module_t>& modules, pak_metadata_t metadate, std::string runtime_data = "");
+    pak_t(std::string pkgname, pak_metadata_t metadata, const std::vector<std::string>& depends, std::string runtime_data = "");
     pak_t(const pak_t& pak);
     __inline pak_t operator=(pak_t& val)
     {
@@ -83,8 +85,22 @@ struct pak_t
     }
     
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(pak_t, pkgname, modules, metadate, runtime_data);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(pak_t, pkgname, metadata, depends, runtime_data);
+
+namespace nlohmann {
+    template <>
+    struct adl_serializer<pak_t> {
+        static void to_json(json& j, const pak_t& vet) {
+            
+        }
+
+        static void from_json(const json& j, pak_t& pak) {
+            ::from_json(j, pak);
+        }
+    };
+}
 
 C_CALL int lua_pak_mount(lua_State* L);
+std::pair<pak_t, std::string> getPakData(std::string pak_name);
 
 #endif

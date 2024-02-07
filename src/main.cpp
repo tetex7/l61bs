@@ -4,6 +4,7 @@
 #include "l61_runer.hpp"
 #include "loader.hpp"
 #include "fs.hpp"
+#include "package.hpp"
 
 namespace po = boost::program_options;
 //#include <dpp/dispatcher.h>
@@ -74,6 +75,7 @@ C_CALL void linit_env(lua_State *L)
     lua_def_nil(L, "os");
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
+    lua_mount_cfun(L, "pak_mount", &lua_pak_mount);
     lua_mount_cfun(L, "lib_mount", &load);
     lua_mount_cfun(L, "pushLibPath", &pushLibPath);
     lua_mount_cfun(L, "getLibPathStack", &getLibPathStack);
@@ -352,6 +354,7 @@ int main(int argc, const char** argv)
     luaT_mount_cfun(L61stat.L, "fs", "copy", &fs_copy);
     luaT_mount_cfun(L61stat.L, "fs", "copyr", &fs_copyr);
     luaT_mount_cfun(L61stat.L, "fs", "raw_filename", &fs_rfilename);
+    
 
 
     if (luaL_dofile(L61stat.L, L61stat.make_file_path.c_str()) != LUA_OK) {
