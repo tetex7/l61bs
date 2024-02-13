@@ -6,18 +6,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <lua.hpp>
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define STR_NULL "\'NULL STR\'"
+#define STR_NULL "\0\0\0\'NULL\x69 STR\'\0\0"
 #define L61_BS 100
 #define readonly const
 #define SWITCH(v) v = !v
 #define rlen(v) (v - 1)
-#define arrlen(val) (size_t)(sizeof(val) / sizeof(*val))
+#define arrlen(val) ((size_t)(sizeof(val) / sizeof(*val)))
 #define alen(v) rlen(arrlen(v))
 #define arr(v) v*
+#define mk_segfault() *(char*)NULL = 0
+#define __forceinline __attribute__((always_inline))
 typedef bool FLAG;
 
 typedef readonly bool CFLAG;
@@ -56,7 +57,9 @@ typedef size_t address_t;
 
 typedef WORD EWORD;
 
-
+#define ENTER_KEY_CODE '\x0A'
+#define BACK_SPACE_KEY_CODE '\x08'
+//#define LINE_FEED_KEY_CODE '\x0A'
 
 typedef enum ERROR_STAT_e
 {
@@ -125,18 +128,16 @@ typedef ERROR_PAK* ER_PAC_PTR;
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <functional>
-#include <filesystem>
 #include <map>
 #include <json.hpp>
+#include <signal.h>
+#include <boost/algorithm/string.hpp>
 
 namespace fs = boost::filesystem;
+namespace bt = boost;
 
-using boost::process::ipstream;
-using boost::process::child;
-using boost::process::std_out;
-using boost::process::cmd;
-using boost::any;
-using boost::any_cast;
+
+#include <lua.hpp>
 #define L61_NAME(X) namespace l61 { X }
 
 #define getTypeOf decltype
@@ -154,6 +155,12 @@ __inline std::string STRex(bi_args... vals)
     std::stringstream ss;
     (ss << ... << vals);
     return ss.str();
+}
+
+template<typename type_ptr>
+constexpr type_ptr to_ptr(address_t add)
+{
+    return (type_ptr)add;
 }
 
 //extern std::vector<std::string> args;

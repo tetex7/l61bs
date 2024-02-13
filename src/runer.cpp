@@ -113,7 +113,12 @@ Wret:
             return 1;
 
         } else {
-            std::cerr << "[l61/C]lib table is not a table???\n";
+            lua_getglobal(L, "allowMountTableError");
+            FLAG AMTE = (FLAG)lua_toboolean(L, -1);
+            if (AMTE)
+            {
+                std::cerr << "[l61/C]lib table is not a table???\n";
+            }
             lua_pushnil(L);
             return 1;
         }

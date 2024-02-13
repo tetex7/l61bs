@@ -134,7 +134,7 @@ C_CALL int fs_is_dir(lua_State* L)
 }
 
 
-/*C_CALL int  fs_list_files(lua_State* L)
+C_CALL int  fs_list_files(lua_State* L)
 {
     if (!lua_isstring(L, -1))
     {
@@ -144,13 +144,12 @@ C_CALL int fs_is_dir(lua_State* L)
     }
     std::vector<std::string> out;
     std::string raw_dir = lua_tostring(L, -1);
-    fs::path pdir = fs::absolute(raw_dir);
-    fs::directory_entry d = fs::directory_entry(pdir);
-    for (const auto file& : d)
+    std::filesystem::path p = raw_dir;
+    for (const auto& file : std::filesystem::directory_iterator{p})
     {
-        out.push_back(d.string());
+        out.push_back(file.path().string());
     }
     createIntStrTable(L, out);
     return 1;
-}*/
+}
 

@@ -13,13 +13,44 @@ function pushLibPath(path)
     
 end
 
+---comment
+---@param say string|nil
+---@return string
+function input(say)
+    
+end
+
+---comment
+---@return string
+function input()
+    
+end
+
 function pushLibPath()
+    
+end
+
+---@return string
+function peekLibPath()
+    
+end
+
+---@return integer
+function getSizeLibPath()
+    
+end
+---comment
+---@param index integer
+---@return string
+function getLibPathAt(index)
     
 end
 
 ---@return table
 function getLibPathStack()
 end
+
+
 ---
 ---Returns a string output for cmd.
 ---
@@ -113,6 +144,11 @@ function libfs.copy(from, to)
     
 end
 
+
+function mk_segfault()
+    
+end
+
 ---comment
 ---@param from string
 ---@param to string
@@ -120,6 +156,13 @@ function libfs.copyr(from, to)
     
 end
 
+---comment
+---@param dir string
+---@return table
+function libfs.list_files_c(dir)
+    --    local df = l61.stringEx.split(exec(string.format("ls %s", dir)), "  \n")
+    --    return df
+end
 ---
 ---
 ---
@@ -161,10 +204,11 @@ sys.fs = fs
 
 sys.user = ""
 DEBUG = false
-
+---@type boolean
+allowMountTableError = false
 --@type osdateparam
 --sd = {}
-
+L61_VID = ""
 l61 = libl61
 fs = libfs
 os = sys

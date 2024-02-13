@@ -3,6 +3,7 @@
 #define VALS_HPP
 #include "defs.h"
 #include "types.hpp"
+#include "inputs.hpp"
 std::vector<std::string> splitString(const std::string& input);
 // class d{};
 

@@ -5,6 +5,10 @@
 #include "loader.hpp"
 #include "fs.hpp"
 #include "package.hpp"
+#include "inputs.hpp"
+//#include <absl/strings/string_view.h>
+//absl::string_view s = "";
+
 
 namespace po = boost::program_options;
 //#include <dpp/dispatcher.h>
@@ -42,6 +46,39 @@ C_CALL int pushLibPath(lua_State *L)
     return 0;
 }
 
+C_CALL int getLibPathAt(lua_State *L)
+{
+    if (lua_isinteger(L, -1))
+    {
+        int index = (int)lua_tointeger(L, -1);
+        if (index == spaths.size())
+        {
+            lua_pushstring(L, spaths[index - 1].c_str());
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+C_CALL int getSizeLibPath(lua_State *L)
+{
+    lua_pushinteger(L, spaths.size());
+    return 1;
+}
+
+C_CALL int peekLibPath(lua_State *L)
+{
+    /*if (lua_isstring(L, -1))
+    {
+        std::string path = lua_tostring(L, -1);
+        spaths.push_back(path);
+        return 0;
+    }*/
+    lua_pushstring(L, spaths[spaths.size() - 1].c_str());
+    return 1;
+}
+
 C_CALL int popLibPath(lua_State *L)
 {
     if (spaths.size() != sp_size)
@@ -65,20 +102,43 @@ C_CALL int lexit(lua_State *L)
     return 0;
 }
 
+C_CALL int lget_input(lua_State *L)
+{
+    if (lua_isstring(L, -1))
+    {
+        std::string out = get_input(lua_tostring(L, -1));
+        lua_pushstring(L, out.c_str());
+        return 1;
+    }
+    std::string out = get_input();
+    lua_pushstring(L, out.c_str());
+    return 1;
+}
+
+C_CALL int mks(lua_State *L)
+{
+    mk_segfault();
+}
+
 C_CALL void linit_env(lua_State *L)
 {
     luaL_openlibs(L);
+    lua_mount_cfun(L, "mk_segfault", &mks);
     lua_def_bool(L, "DEBUG", 0);
     lua_def_string(L61stat.L, "L61_VID", "2.2.0_dev");
     lua_newtable(L61stat.L);
     lua_setglobal(L61stat.L, "sys");
     lua_def_nil(L, "os");
+    lua_mount_cfun(L, "input", &lget_input);
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
     lua_mount_cfun(L, "pak_mount", &lua_pak_mount);
     lua_mount_cfun(L, "lib_mount", &load);
     lua_mount_cfun(L, "pushLibPath", &pushLibPath);
     lua_mount_cfun(L, "getLibPathStack", &getLibPathStack);
+    lua_mount_cfun(L, "getLibPathAt", &getLibPathAt);
+    lua_mount_cfun(L, "getSizeLibPath", &getSizeLibPath);
+    lua_mount_cfun(L, "peekLibPath", &peekLibPath);
     lua_mount_cfun(L, "popLibPath", &popLibPath);
     lua_def_nil(L, "require");
     lua_mount_cfun(L, "require", &load);
@@ -89,6 +149,7 @@ C_CALL void linit_env(lua_State *L)
     lua_libmount(L, "libl61", "l61");
     lua_libmount(L, "libfs", "fs");
     lua_def_table(L, "sys", "os");
+    lua_def_bool(L, "allowMountTableError", 1);
 
 }
 
@@ -130,12 +191,33 @@ lua_type_e lua_gettype(lua_State *L, int idx)
 }
 using boost::program_options::unknown_option;
 
-typedef const char** cstr_arr;
-
+C_CALL void int_h(int sig)
+{
+    switch (sig)
+    {
+    case SIGINT:
+        std::cout << "\n\nUwU\n\n";
+        exit(0);
+    case SIGSEGV:
+        std::cout << "\n\nFUCK segfault\n\n";
+        exit(134);
+        return;
+        break;
+    case SIGQUIT:
+        exit(0);
+    default:
+        break;
+    }
+    
+}
 int main(int argc, const char** argv)
 {
     //std::unique_ptr<lua_State, getTypeOf(&lua_close)> lua(luaL_newstate(), lua_close);
+    signal(SIGINT, int_h);
+    signal(SIGSEGV, int_h);
+    signal(SIGQUIT, int_h);
     atexit(bl61_exit);
+
     const char* exe_path_str = argv[0];
     //std::cout << "user: " << L61stat.user_name << "\n";
     
@@ -154,7 +236,7 @@ int main(int argc, const char** argv)
         ("can-root", po::value<FLAG>(), "")
     ;
     
-
+__asm("L15:");
     po::variables_map vm;
     try
     {
@@ -354,6 +436,8 @@ int main(int argc, const char** argv)
     luaT_mount_cfun(L61stat.L, "fs", "copy", &fs_copy);
     luaT_mount_cfun(L61stat.L, "fs", "copyr", &fs_copyr);
     luaT_mount_cfun(L61stat.L, "fs", "raw_filename", &fs_rfilename);
+    luaT_mount_cfun(L61stat.L, "fs", "list_files_c", &fs_list_files);
+    
     
 
 
@@ -389,8 +473,10 @@ ERROR:
     {
         std::cerr << "\nError loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
         std::cout << "\a\a";
+        char s = '\"';
         return 55;
     }
+    int* t = to_ptr<int*>((address_t)&L61stat);
     std::cout << '\a';
     return exit_code;
 }

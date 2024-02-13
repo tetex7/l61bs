@@ -13,5 +13,6 @@ C_CALL int fs_delet(lua_State* L);
 C_CALL int fs_mkdir(lua_State* L);
 C_CALL int fs_copy(lua_State* L);
 C_CALL int fs_copyr(lua_State* L);
+C_CALL int  fs_list_files(lua_State* L);
 
 #endif
