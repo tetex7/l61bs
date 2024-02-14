@@ -6,7 +6,7 @@ std::vector<address_t> gc_addr;
 
 C_CALL void bl61_exit()
 {
-    mk_segfault();
+setlocc(2);
     if(gc_addr.empty())
     {
         goto eL1;
