@@ -37,7 +37,7 @@ struct l61_stat
     l61_stat();
     l61_stat(lua_State* L, const std::string work_path, const std::string make_file_path, std::string bin_path, std::string user);
 };
-
+void mk_errror(const char* str, int code);
 std::ostream& operator<<(std::ostream& stream, const std::vector<BYTE>& b);
 std::vector<BYTE> ldump(lua_State* L);
 

@@ -60,6 +60,21 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<BYTE>& b)
     
 }
 
+void mk_errror(const char* str, int code)
+{
+    std::cout << "\n\n!!" << str << "!! :-(\n\ndumping L61stat@" << &L61stat << '\n';
+    std::cout << L61stat << "\n\n";
+
+    std::cout << "START OF SPATHS\n";
+    for(const std::string& path : spaths)
+    {
+        std::cout << "  " << path << '\n';
+    }
+    std::cout << "END OF SPATHS\n\n";
+    for (size_t i = 0; i < 400; i++);
+    exit(code);
+}
+
 std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls)
 {
     stream << "LUA_State: " << Ls.L 
