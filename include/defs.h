@@ -14,6 +14,7 @@ extern "C" {
 #define readonly const
 #define SWITCH(v) v = !v
 #define rlen(v) (v - 1)
+#define pass continue
 #define arrlen(val) ((size_t)(sizeof(val) / sizeof(*val)))
 #define alen(v) rlen(arrlen(v))
 #define arr(v) v*
@@ -48,8 +49,8 @@ typedef void(*VOID_FPTR)();
 typedef uint8_t address8_t;
 typedef uint16_t address16_t;
 typedef size_t address_t;
-#define ptr_to_addr8(ptr) (address8_t)ptr
-#define ptr_to_addr16(ptr) (address16_t)ptr
+//#define ptr_to_addr8(ptr) (address8_t)ptr
+//#define ptr_to_addr16(ptr) (address16_t)ptr
 #define addr_to_ptr(add) (void*)add
 #define EOS '\0'
 
@@ -135,6 +136,7 @@ typedef ERROR_PAK* ER_PAC_PTR;
 
 namespace fs = boost::filesystem;
 namespace bt = boost;
+namespace po = boost::program_options;
 
 
 #include <lua.hpp>
@@ -144,7 +146,6 @@ namespace bt = boost;
 
 #define C_CALL extern "C"
 #define C_CALL_BLOCK(def) extern "C" {def}
-
 //#define var auto
 //#define val const auto
 typedef std::u8string ustring;

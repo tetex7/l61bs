@@ -84,8 +84,18 @@ C_CALL int load(lua_State *L)
 
     for(const std::string& path_to : spaths)
     {
-            
-        std::string path = path_to + "/" + lib_name + ".lua";
+        //std::cout << path_to << " \n";
+        std::string path;
+
+        if (fs::exists(path_to + "/" + lib_name + ".lib61"))
+        {
+            path = path_to + "/" + lib_name + ".lib61";
+        }
+        else
+        {
+           path = path_to + "/" + lib_name + ".lua"; 
+        }
+
         if (luaL_dofile(L, path.c_str()) == LUA_OK) {
             goto Wret;
         }
@@ -113,19 +123,16 @@ Wret:
             return 1;
 
         } else {
-            lua_getglobal(L, "allowMountTableError");
-            FLAG AMTE = (FLAG)lua_toboolean(L, -1);
-            if (AMTE)
-            {
-                std::cerr << "[l61/C]lib table is not a table???\n";
-            }
+            std::cerr << "[l61/C]lib table is not a table???\n";
             lua_pushnil(L);
             return 1;
         }
     }
     else
     {
-        if (!it)
+        lua_getglobal(L, "allowMountTableError");
+        FLAG AMTE = lua_toboolean(L, -1);
+        if (AMTE)
         {
             std::cerr << "[l61/C]no lib table???\n";
         }
@@ -170,19 +177,17 @@ void lua_libmount(lua_State *L, const char* libname, const char* as, FLAG has_ta
     }
     lua_pushstring(L61stat.L, libname);
     lua_pcall(L61stat.L, 1, 1, 0);
-    if (!lua_istable(L61stat.L, -1))
-    {
-        std::cout << "[C] Error: didn't find lib tabl" << libname << " \n";
-        return;
-    }
-    else if(has_tale)
-    {
-        return;
-    }
-    else
+    if (lua_istable(L61stat.L, -1))
     {
         lua_setglobal(L61stat.L, as);
+        return;
     }
+    else if(!has_tale)
+    {
+        return;
+    }
+    std::cout << "[C] Error: didn't find lib tabl " << libname << " \n";
+    return;
 }
 
 

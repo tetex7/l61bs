@@ -48,7 +48,14 @@ ret_bi run(std::function<ret_bi()> fun)
 lua_type_e lua_gettype(lua_State *L, int idx);
 extern l61_stat L61stat;
 extern FLAG canTRUST;
+C_CALL void bl61_exit();
+extern WORD sage;
+
+#define setlocc(v) (sage = v)
+#define getlocc() (sage)
+
 extern std::vector<std::string> spaths;
+extern std::vector<address_t> gc_addr;
 #define REP_BUG_TEXT "For Docs and bug reporting\nplease see: <https://github.com/tetex7/l61bs>."
 #define NO_ROOT_MEG "PLEASE DO NOT RUN AS ROOT\nyou have better things to do in your life then destroy your system"
 #define LCTEXT "[λ61/C++]"

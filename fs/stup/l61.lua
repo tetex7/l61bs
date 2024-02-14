@@ -193,8 +193,20 @@ end
 function sys.exit(code)
     
 end
+---comment
+---@param str string
+---@return integer
+function str_to_int(str) end
 
 ---preload var var of libl61
+
+---@return integer
+---@param fun function
+function mk_thread(fun) end
+
+---comment
+---@param id integer
+function thread_start(id) end
 
 sys = {}
 sys.argv = {}
@@ -212,5 +224,6 @@ L61_VID = ""
 l61 = libl61
 fs = libfs
 os = sys
+color = libcolor
 ---the PWD as of $PWD in bash
 PWD = ""

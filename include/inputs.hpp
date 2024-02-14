@@ -31,6 +31,9 @@ constexpr std::vector<char> to_vec_buff(const char* str)
     return o;
 }
 
+std::string get_file_str(std::string f_name);
+std::vector<char> get_file(std::string f_name);
+std::vector<BYTE> get_file_b(std::string f_name);
 std::string get_input(std::string say = STR_NULL);
 
 #endif

@@ -25,7 +25,6 @@ struct prog_info
     std::string output;
 };
 
-
 struct l61_stat
 {
     lua_State* L;
@@ -33,10 +32,13 @@ struct l61_stat
     std::string make_file_path;
     std::string bin_path;
     std::string user_name;
+    operator lua_State*();
+    friend std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls);
     l61_stat();
     l61_stat(lua_State* L, const std::string work_path, const std::string make_file_path, std::string bin_path, std::string user);
 };
 
-
+std::ostream& operator<<(std::ostream& stream, const std::vector<BYTE>& b);
+std::vector<BYTE> ldump(lua_State* L);
 
 #endif

@@ -17,6 +17,7 @@ std::vector<std::string> split(std::string s, std::string delimiter)
 
 C_CALL int fs_exists(lua_State* L)
 {
+    setlocc(303);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -31,6 +32,7 @@ C_CALL int fs_exists(lua_State* L)
 
 C_CALL int fs_getEx(lua_State* L)
 {
+    setlocc(304);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -44,6 +46,7 @@ C_CALL int fs_getEx(lua_State* L)
 
 C_CALL int fs_rfilename(lua_State* L)
 {
+    setlocc(308);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -59,6 +62,7 @@ C_CALL int fs_rfilename(lua_State* L)
 
 C_CALL int fs_mkdir(lua_State* L)
 {
+    setlocc(306);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -71,6 +75,7 @@ C_CALL int fs_mkdir(lua_State* L)
 
 C_CALL int fs_delet(lua_State* L)
 {
+    setlocc(308);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -84,6 +89,7 @@ C_CALL int fs_delet(lua_State* L)
 
 C_CALL int fs_copyr(lua_State* L)
 {
+    setlocc(314);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -103,6 +109,7 @@ C_CALL int fs_copyr(lua_State* L)
 
 C_CALL int fs_copy(lua_State* L)
 {
+    setlocc(304);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -122,6 +129,7 @@ C_CALL int fs_copy(lua_State* L)
 
 C_CALL int fs_is_dir(lua_State* L)
 {
+    setlocc(353);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";
@@ -136,6 +144,7 @@ C_CALL int fs_is_dir(lua_State* L)
 
 C_CALL int  fs_list_files(lua_State* L)
 {
+    setlocc(383);
     if (!lua_isstring(L, -1))
     {
         std::cout << "[l61/C] Error: didn't find a string on top of Lua stack\n";

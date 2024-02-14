@@ -10,10 +10,11 @@
 //absl::string_view s = "";
 
 
-namespace po = boost::program_options;
+
 //#include <dpp/dispatcher.h>
-l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/make.lua", "/opt/l61", getenv("USER"));
+l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/build.l61", "/opt/l61", getenv("USER"));
 FLAG canTRUST = 0;
+WORD sage = 0;
 std::vector<std::string> spaths = {(L61stat.work_path + "/scripts"), ("/home/" + L61stat.user_name + "/l61_lib"), (L61stat.bin_path + "/lib")};
 const size_t sp_size = spaths.size();
 
@@ -79,6 +80,17 @@ C_CALL int peekLibPath(lua_State *L)
     return 1;
 }
 
+C_CALL int str_to_int(lua_State *L)
+{
+    if (lua_isstring(L, -1))
+    {
+        std::string str = lua_tostring(L, -1);
+        int o = std::stoi(str);
+        lua_pushinteger(L, o);
+        return 1;
+    }
+}
+
 C_CALL int popLibPath(lua_State *L)
 {
     if (spaths.size() != sp_size)
@@ -117,18 +129,21 @@ C_CALL int lget_input(lua_State *L)
 
 C_CALL int mks(lua_State *L)
 {
+    setlocc(666);
     mk_segfault();
 }
 
 C_CALL void linit_env(lua_State *L)
 {
+    setlocc(400);
     luaL_openlibs(L);
     lua_mount_cfun(L, "mk_segfault", &mks);
     lua_def_bool(L, "DEBUG", 0);
-    lua_def_string(L61stat.L, "L61_VID", "2.2.0_dev");
-    lua_newtable(L61stat.L);
-    lua_setglobal(L61stat.L, "sys");
+    lua_def_string(L, "L61_VID", "2.2.0_dev");
+    lua_newtable(L);
+    lua_setglobal(L, "sys");
     lua_def_nil(L, "os");
+    lua_mount_cfun(L, "str_to_int", &str_to_int);
     lua_mount_cfun(L, "input", &lget_input);
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
@@ -142,15 +157,15 @@ C_CALL void linit_env(lua_State *L)
     lua_mount_cfun(L, "popLibPath", &popLibPath);
     lua_def_nil(L, "require");
     lua_mount_cfun(L, "require", &load);
-    //luaL_dostring(L, "function require(name) return libmount(name) end");
     lua_mount_cfun(L, "exec", &lua_exec); 
     lua_mount_cfun(L, "getdirR", &getdirR);
     lua_def_string(L, "PWD", L61stat.work_path.c_str());
     lua_libmount(L, "libl61", "l61");
     lua_libmount(L, "libfs", "fs");
+    lua_libmount(L, "libcolor", "color");
+    lua_libmount(L, "utils", "", 0);
     lua_def_table(L, "sys", "os");
     lua_def_bool(L, "allowMountTableError", 1);
-
 }
 
 //std::unique_ptr<BYTE, getTypeOf(&free)> buff = std::unique_ptr<BYTE, getTypeOf(&free)>(malloc(sizeof(BYTE) * 850), &free);
@@ -162,34 +177,15 @@ C_CALL void linit_env(lua_State *L)
     }
     return f;
 });//std::array<BYTE, 850>();*/
-std::vector<VOID_FPTR> exit_funs;
 
-C_CALL void bl61_exit()
-{
-    if(exit_funs.empty())
-    {
-        goto eL1;
-    } 
-    for(VOID_FPTR v : exit_funs)
-    {
-        v();
-    }
-eL1:
-    if (L61stat.L != NULL)
-    {
-        lua_close(L61stat.L);
-        L61stat.L = NULL;
-        goto sip_stat;
-    }
-sip_stat:
-    return;
-}
 
 lua_type_e lua_gettype(lua_State *L, int idx)
 {
     return (lua_type_e)lua_type(L, idx);
 }
 using boost::program_options::unknown_option;
+
+FLAG au = 0;
 
 C_CALL void int_h(int sig)
 {
@@ -199,10 +195,22 @@ C_CALL void int_h(int sig)
         std::cout << "\n\nUwU\n\n";
         exit(0);
     case SIGSEGV:
-        std::cout << "\n\nFUCK segfault\n\n";
+        std::cout << "\n\n!!SEGFAULT!! :-(\n\ndumping L61stat@" << &L61stat << '\n';
+        std::cout << L61stat << "\n\n";
+
+        std::cout << "START OF SPATHS\n";
+        for(const std::string& path : spaths)
+        {
+            std::cout << "  " << path << '\n';
+        }
+        std::cout << "END OF SPATHS\n\n";
+        for (size_t i = 0; i < 400; i++);
+        if (au)
+        {
+            abort();
+        }
         exit(134);
         return;
-        break;
     case SIGQUIT:
         exit(0);
     default:
@@ -213,10 +221,11 @@ C_CALL void int_h(int sig)
 int main(int argc, const char** argv)
 {
     //std::unique_ptr<lua_State, getTypeOf(&lua_close)> lua(luaL_newstate(), lua_close);
+    setlocc(120);
+    atexit(bl61_exit);
     signal(SIGINT, int_h);
     signal(SIGSEGV, int_h);
     signal(SIGQUIT, int_h);
-    atexit(bl61_exit);
 
     const char* exe_path_str = argv[0];
     //std::cout << "user: " << L61stat.user_name << "\n";
@@ -233,7 +242,9 @@ int main(int argc, const char** argv)
         ("mainl,l", po::value<std::string>(), "the start lua file")
         ("argv,a", po::value<std::string>(), "biled lua args (RIP)")
         ("log-mode", po::value<FLAG>(), "")
-        ("can-root", po::value<FLAG>(), "")
+        ("can-root", "")
+        ("ls", "")
+        ("ad","")
     ;
     
 __asm("L15:");
@@ -251,6 +262,10 @@ __asm("L15:");
     }
 
     FLAG logm = 0;
+    if (vm.count("ad"))
+    {
+        au = 1;
+    }
 
     if (vm.count("log-mode")) {
         logm = vm["log-mode"].as<FLAG>();
@@ -263,10 +278,14 @@ __asm("L15:");
         std::cout << REP_BUG_TEXT << "\n";
         return 0;
     }
+    FLAG rt = 0;
+    if (vm.count("can-root")) {
+        rt = 1;
+    }
 
-    if ((L61stat.user_name == "root") && !vm.count("can-root"))
+    if ((L61stat.user_name == "root") && !rt)
     {
-        std::cout << NO_ROOT_MEG << '\n';
+        std::cout << "\033[1;31m" <<  NO_ROOT_MEG << "\033[0m" << '\n';
         exit(45);
     }
 
@@ -296,6 +315,14 @@ __asm("L15:");
         start_file = vm["mainl"].as<std::string>();
     }
 
+    if (vm.count("ls")) {
+        L61stat.make_file_path = L61stat.work_path + "/make.lua";
+    }
+
+    if (vm.count("log-mode")) {
+        logm = vm["log-mode"].as<FLAG>();
+    }
+
     if (vm.count("dir"))
     {
         std::cout << "[l61/C] seting l61's cwd dir to " << vm["dir"].as<std::string>() << ".\n";
@@ -310,7 +337,7 @@ __asm("L15:");
         lua_arg = splitString(vm["argv"].as<std::string>());
 
     }
-
+    setlocc(142);
     std::string title = "λ61 on " + L61stat.make_file_path;
     std::cout << "\033]0;" << title << "\007";
 
@@ -324,8 +351,9 @@ __asm("L15:");
     //char buffer[PATH_MAX];
     /*ssize_t len = readlink("/proc/self/exe", buffer, strlen(buffer)); 
     getcwd(buffer, sizeof(buffer));*/
+    setlocc(186);
     std::vector<std::string> arg_vet = {L61stat.make_file_path};
-    linit_env(L61stat.L);
+    linit_env(L61stat);
     lua_getglobal(L61stat.L, "l61");
     if(lua_istable(L61stat.L, -1))
     {
@@ -438,37 +466,58 @@ __asm("L15:");
     luaT_mount_cfun(L61stat.L, "fs", "raw_filename", &fs_rfilename);
     luaT_mount_cfun(L61stat.L, "fs", "list_files_c", &fs_list_files);
     
-    
-
-
-    if (luaL_dofile(L61stat.L, L61stat.make_file_path.c_str()) != LUA_OK) {
-        std::cerr << "Error loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n";
-        return 1;
-    }
-    else
+    try
     {
-        if (luaL_dofile(L61stat.L, (L61stat.bin_path + "/boot.lua").c_str()) != LUA_OK) {
+        setlocc(160);
+        if (luaL_dofile(L61stat.L, L61stat.make_file_path.c_str()) != LUA_OK) {
             std::cerr << "Error loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n";
             return 1;
         }
+        else
+        {
+            if (luaL_dofile(L61stat.L, (L61stat.bin_path + "/boot.lua").c_str()) != LUA_OK) {
+                std::cerr << "Error loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n";
+                return 1;
+            }
 
-        /*lua_getglobal(L61stat.L, "main"); // get the function on the stack
-        if (lua_isfunction(L61stat.L, -1)) { 
-            std::cout << "[λ61/C++] Runing main\n";
-            lua_pcall(L61stat.L, 0, 0, 0); // now call the function
-        } else { 
-            std::cout << "[λ61/C] Error: didn't find a main function on top of Lua stack\n";
-        }*/
-        lua_getglobal(L61stat.L, "boot"); // get the function on the stack
-        if (lua_isfunction(L61stat.L, -1)) { 
-            std::cout << "[λ61/C++] Runing boot\n";
-            lua_pcall(L61stat.L, 0, 0, 0); // now call the function
-        } else { 
-            std::cout << "[λ61/C] Error: didn't find a boot function on top of Lua stack\n";
+            /*lua_getglobal(L61stat.L, "main"); // get the function on the stack
+            if (lua_isfunction(L61stat.L, -1)) { 
+                std::cout << "[λ61/C++] Runing main\n";
+                lua_pcall(L61stat.L, 0, 0, 0); // now call the function
+            } else { 
+                std::cout << "[λ61/C] Error: didn't find a main function on top of Lua stack\n";
+            }*/
+            lua_getglobal(L61stat.L, "boot"); // get the function on the stack
+            if (lua_isfunction(L61stat.L, -1)) { 
+                std::cout << "[λ61/C++] Runing boot\n";
+                lua_pcall(L61stat.L, 0, 0, 0); // now call the function
+            } else { 
+                std::cout << "[λ61/C] Error: didn't find a boot function on top of Lua stack\n";
+            }
+            
         }
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << "\n\n!!EXCEPTION!! :-(\n\ndumping L61stat@" << &L61stat << '\n';
         
+        std::cout << L61stat << "\n\n";
+        std::cout << "START OF SPATHS\n";
+        for(const std::string& path : spaths)
+        {
+            std::cout << "  " << path << '\n';
+        }
+        std::cout << "END OF SPATHS\n\n";
+        std::cout << "\nMSG:\n" << e.what() << "\n\n";
+        for (size_t i = 0; i < 400; i++);
+        if (au)
+        {
+            abort();
+        }
+        exit(134);
     }
 ERROR:
+    setlocc(70);
     if (lua_isstring(L61stat.L, -1))
     {
         std::cerr << "\nError loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
@@ -476,7 +525,5 @@ ERROR:
         char s = '\"';
         return 55;
     }
-    int* t = to_ptr<int*>((address_t)&L61stat);
-    std::cout << '\a';
     return exit_code;
 }
