@@ -75,6 +75,17 @@ void mk_errror(const char* str, int code)
     exit(code);
 }
 
+static std::string dm()
+{
+    std::stringstream st;
+    const size_t* p = (size_t*)&L61stat;
+    const size_t len = sizeof((size_t*)&L61stat);
+    for (size_t i = 0; i < len; i++)
+    {
+        st << std::hex << p[i];
+    }
+    return st.str();
+}
 std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls)
 {
     stream << "LUA_State: " << Ls.L 
@@ -82,10 +93,9 @@ std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls)
     << "\nPWD: " << Ls.work_path 
     << "\nROOT: " << Ls.bin_path
     << "\nscript: " << Ls.make_file_path
-    << "\nLUAS: " << std::hex << arrlen((const BYTE*)Ls.L) << std::dec
-    << "\nSTAGE: " << getlocc()
-    << "\nLINK: " << STRex("https://github.com/tetex7/l61bs/tree/main/doc/ecode/E", getlocc(), ".md"); 
-    //https://github.com/tetex7/l61bs/tree/main/include
-    
+    << "\nLUAS: " << std::hex << ((const size_t*)Ls.L)[2] << std::dec
+    << "\nSTAGE: E" << getlocc()
+    << "\nLINK: " << STRex("https://github.com/tetex7/l61bs/tree/main/doc/ecode/E", getlocc(), ".md")
+    << "\nL61stat DUMP: 0x" << dm();
     return stream;
 }

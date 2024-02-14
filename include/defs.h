@@ -26,6 +26,8 @@ typedef readonly bool CFLAG;
 
 typedef unsigned long       DWORD;
 
+typedef __uint128_t       QWORD;
+
 typedef unsigned char       BYTE;
 
 typedef BYTE BYTE_FLAG;

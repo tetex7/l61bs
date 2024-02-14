@@ -205,7 +205,7 @@ C_CALL void int_h(int sig)
         }
         std::cout << "END OF SPATHS\n\n";
         for (size_t i = 0; i < 400; i++);
-        if (au)
+        if (au || (getlocc() <= 10))
         {
             abort();
         }
@@ -517,12 +517,11 @@ __asm("L15:");
         exit(134);
     }
 ERROR:
-    setlocc(70);
+    setlocc(7);
     if (lua_isstring(L61stat.L, -1))
     {
         std::cerr << "\nError loading Lua script: " << lua_tostring(L61stat.L, -1) << "\n\n";
         std::cout << "\a\a";
-        char s = '\"';
         return 55;
     }
     return exit_code;
