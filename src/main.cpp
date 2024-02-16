@@ -1,3 +1,20 @@
+/*
+l61 main code
+Copyright (C) 2024  tete
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include <iostream>
 #include "defs.h"
 #include "vals.hpp"
@@ -245,8 +262,8 @@ int main(int argc, const char** argv)
         ("can-root", "")
         ("ls", "")
         ("ad","")
+        ("copyright", "")
     ;
-    
 __asm("L15:");
     po::variables_map vm;
     try
@@ -259,6 +276,12 @@ __asm("L15:");
     {
         std::cerr << e.what() << '\n';
         exit(1);
+    }
+
+    if (vm.count("copyright"))
+    {
+        std::cout << COPY_STR << '\n';
+        exit(0);
     }
 
     FLAG logm = 0;

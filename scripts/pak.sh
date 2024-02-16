@@ -42,7 +42,7 @@ function main()
 
 #cp -ar ./x46FWlogo.png ${arg}
 #cp -ar ./README.md ${arg}
-#cp -ar ./LICENSE ${arg}
+        cp -ar ./LICENSE ${arg}
             #cp ./include ./${arg}
             #cp ./${BIN_DIR}/${arg} ./${arg}
             cp ./bin/${arg} ./${arg}/bin

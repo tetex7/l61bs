@@ -1,3 +1,21 @@
+/*
+l61 type call
+Copyright (C) 2024  tete
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "types.hpp"
 #include "vals.hpp"
 l61_stat::l61_stat()
@@ -60,7 +78,7 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<BYTE>& b)
     
 }
 
-void mk_errror(const char* str, int code)
+void mk_errror(const char* str, int code, const char* mg)
 {
     std::cout << "\n\n!!" << str << "!! :-(\n\ndumping L61stat@" << &L61stat << '\n';
     std::cout << L61stat << "\n\n";
@@ -71,7 +89,15 @@ void mk_errror(const char* str, int code)
         std::cout << "  " << path << '\n';
     }
     std::cout << "END OF SPATHS\n\n";
+    if (std::string(mg) == STR_NULL)
+    {
+        std::cout << "MSG: " << mg << '\n';
+    }
     for (size_t i = 0; i < 400; i++);
+    if ((getlocc() <= 10))
+    {
+        abort();
+    }
     exit(code);
 }
 
@@ -88,7 +114,8 @@ static std::string dm()
 }
 std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls)
 {
-    stream << "LUA_State: " << Ls.L 
+    stream 
+    << "LUA_State: " << Ls.L 
     << "\nuser name: " << Ls.user_name 
     << "\nPWD: " << Ls.work_path 
     << "\nROOT: " << Ls.bin_path

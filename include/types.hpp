@@ -1,3 +1,20 @@
+/*
+l61 types header
+Copyright (C) 2024  tete
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #pragma once
 #ifndef TYPES_HPP
 #define TYPES_HPP
@@ -37,7 +54,7 @@ struct l61_stat
     l61_stat();
     l61_stat(lua_State* L, const std::string work_path, const std::string make_file_path, std::string bin_path, std::string user);
 };
-void mk_errror(const char* str, int code);
+void mk_errror(const char* str, int code, const char* mg);
 std::ostream& operator<<(std::ostream& stream, const std::vector<BYTE>& b);
 std::vector<BYTE> ldump(lua_State* L);
 
