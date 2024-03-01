@@ -61,12 +61,20 @@ ret_bi run(std::function<ret_bi()> fun)
     return fun();
 }
 
+template<typename form, typename to>
+to lto_type(std::type_identity_t<form>& f)
+{
+    return std::bit_cast<std::type_identity_t<to>>(f);
+}
+
+C_CALL void bl61_exit();
 
 lua_type_e lua_gettype(lua_State *L, int idx);
 extern l61_stat L61stat;
 extern FLAG canTRUST;
-C_CALL void bl61_exit();
+extern int exit_code;
 extern WORD sage;
+extern const size_t sp_size;
 
 #define setlocc(v) (sage = v)
 #define getlocc() (sage)

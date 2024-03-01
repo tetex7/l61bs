@@ -73,13 +73,16 @@ setlocc(3);
 #   if DEBUG_INPUTS == 1
         std::cout << "hex: " << std::hex << (int)key << std::dec << "\n";
 #   endif
-        switch (key)
+        if (key == BACK_SPACE_KEY_CODE)
         {
-        case BACK_SPACE_KEY_CODE:
             out_vet.pop_back();
+        }
+        else if(key == ENTER_KEY_CODE)
+        {
             break;
-        
-        default:
+        }
+        else
+        {
             out_vet.push_back(key);
         }        
     }

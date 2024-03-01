@@ -1,0 +1,7 @@
+{
+    "confg_vid": "1.0.0",
+    "lib_pre_load": false,
+    "libload": [
+        {"as": "NULL", "lib": "NULL", "tap": false}
+    ]
+}

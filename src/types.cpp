@@ -18,6 +18,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "types.hpp"
 #include "vals.hpp"
+#include <stacktrace>
+#include "json.hpp"
+#include <fstream>
+
 l61_stat::l61_stat()
 : L(NULL), work_path(STR_NULL), make_file_path(STR_NULL) {}
 
@@ -89,6 +93,7 @@ void mk_errror(const char* str, int code, const char* mg)
         std::cout << "  " << path << '\n';
     }
     std::cout << "END OF SPATHS\n\n";
+    //std::cout << "START OF STACKTRACE\n" <<  std::stacktrace::current() << "\nSTART OF STACKTRACE\n\n";
     if (std::string(mg) == STR_NULL)
     {
         std::cout << "MSG: " << mg << '\n';
@@ -123,6 +128,81 @@ std::ostream& operator<<(std::ostream& stream, const l61_stat& Ls)
     << "\nLUAS: " << std::hex << ((const size_t*)Ls.L)[2] << std::dec
     << "\nSTAGE: E" << getlocc()
     << "\nLINK: " << STRex("https://github.com/tetex7/l61bs/tree/main/doc/ecode/E", getlocc(), ".md")
+    //<< "\nCONF: " << Ls.conf
     << "\nL61stat DUMP: 0x" << dm();
+    return stream;
+}
+
+
+std::ostream& operator<<(std::ostream& stream, const confg_t& Ls)
+{
+    stream << '(' << Ls.confg_vid << ", " << Ls.lib_pre_load << ')';
+    return stream;
+}
+
+std::vector<std::string> gettap_str(lua_State* L, std::string name)
+{
+setlocc(9);
+    std::vector<std::string> out;
+    
+    lua_getglobal(L, name.c_str());
+    lua_len(L, -1);
+    size_t len = lua_tointeger(L, -1);
+    lua_pop(L, -1);
+    int32_t s = -1;
+    for (size_t i = 1; i < len; i++)
+    {
+        lua_geti(L,-1, i);
+        out.push_back(lua_tostring(L, -1));
+        lua_pop(L, -1);
+        
+    }
+    return out;
+}
+
+std::vector<std::string> iterateOverIntStrTable(lua_State *L, int index) 
+{
+    // push the first key
+    std::vector<std::string> out;
+    lua_pushnil(L);
+    
+    // while there are elements in the table
+    while (lua_next(L,index) != 0) {
+        // key at index -2
+        int key = (int)lua_tointeger(L,-2);
+        
+        // value at index -1
+        const char *value = lua_tostring(L,-1);
+        
+        // pop the value, keep the key for the next iteration
+        lua_pop(L,1);
+        
+        // print
+        out.push_back(value);
+    }
+    return out;
+}
+using nlohmann::json;
+confg_t mk_confg()
+{
+    confg_t out = {"", 0, std::vector<lib_load_data>()};
+    std::ifstream file = std::ifstream("/etc/l61confg.conf61");
+    json jso;
+    file >> jso;
+
+    out.confg_vid = jso["confg_vid"].get<std::string>();
+    out.lib_pre_load = jso["lib_pre_load"].get<FLAG>();
+    std::vector<lib_load_data> ldata;
+    for(const json& j : jso["libload"].get<std::vector<json>>())
+    {
+        ldata.push_back((lib_load_data){j["as"].get<std::string>(), j["lib"].get<std::string>(), j["tap"].get<FLAG>()});
+    }
+    out.ldata = ldata;
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& stream, const lib_load_data& s)
+{
+    stream << '(' << s.as << ", " << s.lib << ", " << s.tap << ')';
     return stream;
 }

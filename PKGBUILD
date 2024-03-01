@@ -1,6 +1,6 @@
  # Maintainer: tete <tetex7@outlook.com>
 pkgname=l61
-pkgver=2.2.0_dev_pr2
+pkgver=2.2.0
 pkgrel=1
 pkgdesc='the λ61 build system'
 url='https://github.com/tetex7/l61bs'
@@ -31,7 +31,9 @@ package() {
     cd ..
     cd ./l61
     echo $PWD
+  #fs/l61confg.conf61
     libf=$(ls ./lib)
+    install -Dm644 ./l61confg.conf61 "${pkgdir}/etc/l61confg.conf61"
     install -Dm644 ./stup/l61.lua "${pkgdir}/opt/l61/stup/l61.lua"
     install -Dm644 ./LICENSE "${pkgdir}/opt/l61/LICENSE"
     install -Dm644 ./boot.lua "${pkgdir}/opt/l61/boot.lua"

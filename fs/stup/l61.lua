@@ -151,6 +151,10 @@ function libfs.getEx(path)
 end
 
 
+---a call to var form the env
+---@param vname string
+---@return string | nil
+function env(vname) end
 
 ---comment
 ---@param from string
@@ -228,6 +232,11 @@ sys.argv = {}
 sys.argc = 0
 sys.l61 = l61
 sys.fs = fs
+
+---a call to var form the env
+---@param vname string
+---@return string | nil
+function sys.env(vname) end
 
 sys.user = ""
 DEBUG = false

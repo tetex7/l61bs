@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fs.hpp"
 #include "package.hpp"
 #include "inputs.hpp"
+#include "runtimectl.hpp"
+#include <stacktrace>
 //#include <absl/strings/string_view.h>
 //absl::string_view s = "";
 
@@ -32,123 +34,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 l61_stat L61stat = l61_stat(luaL_newstate(), fs::current_path().string(), fs::current_path().string() + "/build.l61", "/opt/l61", getenv("USER"));
 FLAG canTRUST = 0;
 WORD sage = 0;
+
 std::vector<std::string> spaths = {(L61stat.work_path + "/scripts"), ("/home/" + L61stat.user_name + "/l61_lib"), (L61stat.bin_path + "/lib")};
 const size_t sp_size = spaths.size();
 
 int exit_code = 0;
-C_CALL int lexit_setcode(lua_State *L)
-{
-    if (lua_isinteger(L, -1))
-    {
-        exit_code = lua_tointeger(L, -1);
-        return 0;
-    }
-    return 0;
-}
 
-C_CALL int getLibPathStack(lua_State *L)
-{
-    createIntStrTable(L, spaths);
-    return 1;
-}
-
-
-C_CALL int pushLibPath(lua_State *L)
-{
-    if (lua_isstring(L, -1))
-    {
-        std::string path = lua_tostring(L, -1);
-        spaths.push_back(path);
-        return 0;
-    }
-    return 0;
-}
-
-C_CALL int getLibPathAt(lua_State *L)
-{
-    if (lua_isinteger(L, -1))
-    {
-        int index = (int)lua_tointeger(L, -1);
-        if (index == spaths.size())
-        {
-            lua_pushstring(L, spaths[index - 1].c_str());
-            return 1;
-        }
-        return 0;
-    }
-    return 0;
-}
-
-C_CALL int getSizeLibPath(lua_State *L)
-{
-    lua_pushinteger(L, spaths.size());
-    return 1;
-}
-
-C_CALL int peekLibPath(lua_State *L)
-{
-    /*if (lua_isstring(L, -1))
-    {
-        std::string path = lua_tostring(L, -1);
-        spaths.push_back(path);
-        return 0;
-    }*/
-    lua_pushstring(L, spaths[spaths.size() - 1].c_str());
-    return 1;
-}
-
-C_CALL int str_to_int(lua_State *L)
-{
-    if (lua_isstring(L, -1))
-    {
-        std::string str = lua_tostring(L, -1);
-        int o = std::stoi(str);
-        lua_pushinteger(L, o);
-        return 1;
-    }
-}
-
-C_CALL int popLibPath(lua_State *L)
-{
-    if (spaths.size() != sp_size)
-    {
-        spaths.pop_back();
-    }
-    return 0;
-}
-
-C_CALL int lexit(lua_State *L)
-{
-    if (lua_isinteger(L, -1))
-    {
-        int exitcode = lua_tointeger(L, -1);
-        exit(exitcode);
-    }
-    else
-    {
-        exit(0);
-    }
-    return 0;
-}
-
-C_CALL int lget_input(lua_State *L)
-{
-    if (lua_isstring(L, -1))
-    {
-        std::string out = get_input(lua_tostring(L, -1));
-        lua_pushstring(L, out.c_str());
-        return 1;
-    }
-    std::string out = get_input();
-    lua_pushstring(L, out.c_str());
-    return 1;
-}
-
-C_CALL int mks(lua_State *L)
-{
-    setlocc(666);
-    mk_segfault();
-}
 
 C_CALL void linit_env(lua_State *L)
 {
@@ -156,11 +47,12 @@ C_CALL void linit_env(lua_State *L)
     luaL_openlibs(L);
     lua_mount_cfun(L, "mk_segfault", &mks);
     lua_def_bool(L, "DEBUG", 0);
-    lua_def_string(L, "L61_VID", "2.2.0_dev");
+    lua_def_string(L, "L61_VID", "2.2.0");
     lua_newtable(L);
     lua_setglobal(L, "sys");
     lua_def_nil(L, "os");
     lua_mount_cfun(L, "str_to_int", &str_to_int);
+    lua_mount_cfun(L, "env", &ctl_env);
     lua_mount_cfun(L, "input", &lget_input);
     lua_mount_cfun(L, "setExitCode", &lexit_setcode);
     lua_mount_cfun(L, "libmount", &load);
@@ -183,6 +75,8 @@ C_CALL void linit_env(lua_State *L)
     lua_libmount(L, "utils", "", 0);
     lua_def_table(L, "sys", "os");
     lua_def_bool(L, "allowMountTableError", 1);
+    luaT_mount_cfun(L,"sys", "env", &ctl_env);
+    luaT_mount_cfun(L,"sys", "libmount", &load);
 }
 
 //std::unique_ptr<BYTE, getTypeOf(&free)> buff = std::unique_ptr<BYTE, getTypeOf(&free)>(malloc(sizeof(BYTE) * 850), &free);
@@ -221,6 +115,7 @@ C_CALL void int_h(int sig)
             std::cout << "  " << path << '\n';
         }
         std::cout << "END OF SPATHS\n\n";
+        //std::cout << "START OF STACKTRACE\n" <<  std::stacktrace::current() << "\nSTART OF STACKTRACE\n\n";
         for (size_t i = 0; i < 400; i++);
         if (au || (getlocc() <= 10))
         {
@@ -243,7 +138,8 @@ int main(int argc, const char** argv)
     signal(SIGINT, int_h);
     signal(SIGSEGV, int_h);
     signal(SIGQUIT, int_h);
-
+    //confg_t conf = mk_confg();
+    //std::cout << "ll: " << conf.confg_vid << '\n';
     const char* exe_path_str = argv[0];
     //std::cout << "user: " << L61stat.user_name << "\n";
     
@@ -263,6 +159,8 @@ int main(int argc, const char** argv)
         ("ls", "")
         ("ad","")
         ("copyright", "")
+        ("fill-copyright", "")
+        ("debug-mode", "")
     ;
 __asm("L15:");
     po::variables_map vm;
@@ -278,9 +176,16 @@ __asm("L15:");
         exit(1);
     }
 
+    if (vm.count("fill-copyright"))
+    {
+        std::cout << exec("cat /opt/l61/LICENSE");
+        exit(0);
+    }
+
     if (vm.count("copyright"))
     {
-        std::cout << COPY_STR << '\n';
+        std::cout << COPY_STR << "\n\n";
+        std::cout << REP_BUG_TEXT << '\n';
         exit(0);
     }
 
@@ -308,7 +213,7 @@ __asm("L15:");
 
     if ((L61stat.user_name == "root") && !rt)
     {
-        std::cout << "\033[1;31m" <<  NO_ROOT_MEG << "\033[0m" << '\n';
+        std::cout << "\033[1;31m" << NO_ROOT_MEG << "\033[0m" << '\n';
         exit(45);
     }
 
